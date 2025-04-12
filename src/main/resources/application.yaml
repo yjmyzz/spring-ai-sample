@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  autoconfigure:
+    exclude: org.springframework.cloud.function.context.config.ContextFunctionCatalogAutoConfiguration
+  application:
+    name: spring-ai
+  profiles:
+    active: dev
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: deepseek-r1:7b
+
+logging:
+  level:
+    root: INFO
+    com.example: DEBUG

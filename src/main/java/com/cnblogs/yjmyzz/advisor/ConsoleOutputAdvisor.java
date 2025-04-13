@@ -21,6 +21,8 @@ public class ConsoleOutputAdvisor implements RequestResponseAdvisor {
             int index = content.lastIndexOf("</think>");
             if (index != -1) {
                 System.out.printf("response=> %s%n", content.substring(index + 10));
+            } else {
+                System.out.printf("response=> %s%n", content);
             }
         }
         return response;

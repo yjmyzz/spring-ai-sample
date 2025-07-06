@@ -1,0 +1,14 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    banner-mode: off
+
+logging:
+  pattern:
+    console:
+  level:
+    root: TRACE
+  file:
+    name: logs/mcp_demo.log

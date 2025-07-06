@@ -15,8 +15,8 @@ public class SpringAiApplication {
     }
 
     @Bean
-    public ToolCallbackProvider weatherTools(OrderService weatherService) {
-        return  MethodToolCallbackProvider.builder().toolObjects(weatherService).build();
+    public ToolCallbackProvider weatherTools(OrderService orderService) {
+        return  MethodToolCallbackProvider.builder().toolObjects(orderService).build();
     }
 
 }

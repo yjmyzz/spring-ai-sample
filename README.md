@@ -5,7 +5,7 @@
 ## 🚀 项目特性
 
 - **Spring AI MCP Server**: 实现了基于 MCP 协议的 AI 工具服务
-- **自定义工具**: 提供了获取博客园博主网址的自定义工具
+- **订单查询工具**: 提供了根据订单号查询订单状态的自定义工具
 - **RESTful API**: 提供简单的 Web API 接口
 - **MCP 客户端示例**: 包含完整的 MCP 客户端使用示例
 - **Spring Boot 3.4.4**: 基于最新的 Spring Boot 版本
@@ -65,7 +65,7 @@ spring-ai-sample/
 │   │   └── WebController.java           # Web API 控制器
 │   └── mcp/
 │       ├── server/
-│       │   └── AuthorService.java       # MCP 服务端工具实现
+│       │   └── OrderService.java        # MCP 服务端工具实现
 │       └── client/
 │           └── McpClientSample.java     # MCP 客户端示例
 ├── src/main/resources/
@@ -78,15 +78,26 @@ spring-ai-sample/
 
 ### 1. MCP 服务端工具
 
-`AuthorService` 类实现了一个自定义的 MCP 工具：
+`OrderService` 类实现了一个自定义的 MCP 工具：
 
 ```java
-@Tool(name = "getCnBlogsUrlByName",
-      description = "获取cnblogs某博主的博客网址")
-public String getCnBlogsUrlByName(@ToolParam(required = true, description = "博主名称") String bloggerName) {
-    return "https://www.cnblogs.com/yjmyzz";
+@Tool(name = "queryOrderStatus",
+      description = "根据订单号查询订单状态")
+public String queryOrderStatus(@ToolParam(required = true, description = "订单号,格式为8位数字,比如：25070601") String orderNo) {
+    return switch (orderNo) {
+        case "25070601" -> "订单号：" + orderNo + "，订单状态：已发货";
+        case "25070602" -> "订单号：" + orderNo + "，订单状态：已完成";
+        case "25070603" -> "订单号：" + orderNo + "，订单状态：已取消";
+        default -> "订单号：" + orderNo + "，订单状态：未知";
+    };
 }
 ```
+
+**支持的订单号：**
+- `25070601` - 订单状态：已发货
+- `25070602` - 订单状态：已完成  
+- `25070603` - 订单状态：已取消
+- 其他订单号 - 订单状态：未知
 
 ### 2. MCP 客户端示例
 
@@ -95,9 +106,38 @@ public String getCnBlogsUrlByName(@ToolParam(required = true, description = "博
 - 列出可用工具
 - 调用工具并获取结果
 
+示例代码：
+```java
+@Test
+public void testMcpClientSample() {
+    ServerParameters stdioParams = ServerParameters.builder("java")
+            .args("-jar", "target/spring-ai-0.0.1-SNAPSHOT.jar")
+            .build();
+    
+    StdioClientTransport stdioTransport = new StdioClientTransport(stdioParams);
+    McpSyncClient mcpClient = McpClient.sync(stdioTransport).build();
+    
+    mcpClient.initialize();
+    
+    // 列出可用工具
+    McpSchema.ListToolsResult toolsList = mcpClient.listTools();
+    System.out.println(toolsList);
+    
+    // 调用订单查询工具
+    McpSchema.CallToolResult result = mcpClient.callTool(
+            new McpSchema.CallToolRequest("queryOrderStatus",
+                    Map.of("orderNo", "25070601")));
+    System.out.println(result);
+    
+    mcpClient.closeGracefully();
+}
+```
+
 ### 3. Web API
 
-提供简单的 REST API 接口用于测试应用状态。
+提供简单的 REST API 接口用于测试应用状态：
+
+- `GET /api/hello` - 返回问候信息
 
 ## ⚙️ 配置说明
 
@@ -119,6 +159,13 @@ logging:
   file:
     name: logs/mcp_demo.log    # 日志文件路径
 ```
+
+### Maven 依赖
+
+主要依赖包括：
+- `spring-ai-starter-mcp-server` - Spring AI MCP 服务器启动器
+- `spring-boot-starter-web` - Spring Boot Web 启动器
+- `spring-boot-starter-test` - 测试依赖
 
 ## 🧪 运行测试
 

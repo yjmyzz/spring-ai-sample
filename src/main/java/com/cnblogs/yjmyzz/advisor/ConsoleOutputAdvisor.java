@@ -6,14 +6,18 @@ import org.springframework.ai.chat.model.ChatResponse;
 
 import java.util.Map;
 
+/**
+ * @author junmingyang
+ */
 public class ConsoleOutputAdvisor implements RequestResponseAdvisor {
 
-
+    @Override
     public AdvisedRequest adviseRequest(AdvisedRequest request, Map<String, Object> context) {
         System.out.printf("request=> %s%n", request.userText());
         return request;
     }
 
+    @Override
     public ChatResponse adviseResponse(ChatResponse response, Map<String, Object> context) {
         var output = response.getResults().getFirst().getOutput();
         if (output != null) {

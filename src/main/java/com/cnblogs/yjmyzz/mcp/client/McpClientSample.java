@@ -32,8 +32,8 @@ public class McpClientSample {
         System.out.println(toolsList);
 
         McpSchema.CallToolResult blogUrl = mcpClient.callTool(
-                new McpSchema.CallToolRequest("getCnBlogsUrlByName",
-                        Map.of("bloggerName", "菩提树下的杨过")));
+                new McpSchema.CallToolRequest("queryOrderStatus",
+                        Map.of("orderNo", "25070601")));
         System.out.println(blogUrl);
 
 

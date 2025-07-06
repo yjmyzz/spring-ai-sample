@@ -1,6 +1,6 @@
 package com.cnblogs.yjmyzz;
 
-import com.cnblogs.yjmyzz.mcp.server.AuthorService;
+import com.cnblogs.yjmyzz.mcp.server.OrderService;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +15,7 @@ public class SpringAiApplication {
     }
 
     @Bean
-    public ToolCallbackProvider weatherTools(AuthorService weatherService) {
+    public ToolCallbackProvider weatherTools(OrderService weatherService) {
         return  MethodToolCallbackProvider.builder().toolObjects(weatherService).build();
     }
 

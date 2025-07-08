@@ -2,13 +2,13 @@ server:
   port: 8080
 
 spring:
-  main:
-    banner-mode: off
+  ai:
+    mcp:
+      server:
+        type: async
 
 logging:
-  pattern:
-    console:
   level:
-    root: TRACE
+    root: DEBUG
   file:
     name: logs/mcp_demo.log

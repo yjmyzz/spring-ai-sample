@@ -2,12 +2,15 @@ package com.cnblogs.yjmyzz.mcp.client;
 
 import io.modelcontextprotocol.client.McpClient;
 import io.modelcontextprotocol.client.McpSyncClient;
+import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
 import io.modelcontextprotocol.client.transport.ServerParameters;
 import io.modelcontextprotocol.client.transport.StdioClientTransport;
 import io.modelcontextprotocol.spec.McpSchema;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author junmingyang
@@ -38,6 +41,30 @@ public class McpClientSample {
 
 
         mcpClient.closeGracefully();
+
+
+    }
+
+    @Test
+    public void testMcpClientSseSample() {
+
+        HttpClientSseClientTransport transport = HttpClientSseClientTransport.builder("http://localhost:8080").build();
+        McpSyncClient client = McpClient.sync(transport).build();
+
+        client.initialize();
+        System.out.println("是否已经初始化:" + client.isInitialized());
+
+        McpSchema.ListToolsResult listToolsResult = client.listTools();
+        List<McpSchema.Tool> tools = listToolsResult.tools();
+        System.out.println("获取到的tools:" + tools.stream().map(McpSchema.Tool::name).collect(Collectors.joining(",")));
+        for (McpSchema.Tool tool : tools) {
+            McpSchema.JsonSchema jsonSchema = tool.inputSchema();
+            System.out.println(jsonSchema);
+            McpSchema.CallToolResult callToolResult = client.callTool(new McpSchema.CallToolRequest(tool.name(), Map.of("orderNo", "25070601")));
+
+            System.out.println("获取到的结果为：==========");
+            callToolResult.content().forEach(System.out::println);
+        }
 
 
     }

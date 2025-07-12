@@ -42,38 +42,6 @@ public class WebController {
         return output.getUrl();
     }
 
-    @GetMapping("/image")
-    public ResponseEntity<ByteArrayResource> genImage(@RequestParam String prompt) {
-        try {
-            var options = ImageOptionsBuilder.builder().height(256).width(256).build();
-            ImageResponse response = zhiPuAiImageModel.call(
-                    new ImagePrompt(prompt, options));
-            Image output = response.getResult().getOutput();
-            
-            // 获取图片URL
-            String imageUrl = output.getUrl();
-            
-            // 下载图片数据
-            URL url = URI.create(imageUrl).toURL();
-            byte[] imageData = url.openStream().readAllBytes();
-            
-            // 创建ByteArrayResource
-            ByteArrayResource resource = new ByteArrayResource(imageData);
-            
-            // 设置响应头
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_PNG);
-            headers.setContentDispositionFormData("attachment", "generated-image.png");
-            
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(resource);
-                    
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
     @GetMapping("/image/display")
     public ResponseEntity<ByteArrayResource> displayImage(@RequestParam String prompt) {
         try {

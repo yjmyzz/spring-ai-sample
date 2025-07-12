@@ -1,27 +1,28 @@
-# Spring AI 示例项目
+# Spring AI 智谱 AI 图像生成示例项目
 
-这是一个基于 Spring AI 框架的示例项目，演示了如何使用 Spring AI 的 MCP (Model Context Protocol) 功能来构建 AI 工具服务。
+这是一个基于 Spring AI 框架的示例项目，演示了如何使用智谱 AI (ZhiPuAI) 的图像生成功能来构建 AI 图像服务。
 
 ## 🚀 项目特性
 
-- **Spring AI MCP Server**: 实现了基于 MCP 协议的 AI 工具服务
-- **订单查询工具**: 提供了根据订单号查询订单状态的自定义工具
-- **RESTful API**: 提供简单的 Web API 接口
-- **MCP 客户端示例**: 包含完整的 MCP 客户端使用示例
+- **智谱 AI 图像生成**: 集成了智谱 AI 的图像生成模型
+- **RESTful API**: 提供图像生成的 Web API 接口
+- **多种输出格式**: 支持获取图片 URL 和直接在浏览器中显示图片
 - **Spring Boot 3.4.4**: 基于最新的 Spring Boot 版本
+- **Java 21**: 使用最新的 Java 特性
 
 ## 🛠️ 技术栈
 
 - **Java 21**
 - **Spring Boot 3.4.4**
 - **Spring AI 1.1.0**
+- **智谱 AI (ZhiPuAI)**
 - **Maven**
-- **MCP (Model Context Protocol)**
 
 ## 📋 系统要求
 
 - JDK 21 或更高版本
 - Maven 3.6 或更高版本
+- 智谱 AI API Key
 
 ## 🚀 快速开始
 
@@ -32,13 +33,29 @@ git clone <repository-url>
 cd spring-ai-sample
 ```
 
-### 2. 构建项目
+### 2. 配置 API Key
+
+在 `src/main/resources/application.yaml` 中配置您的智谱 AI API Key：
+
+```yaml
+spring:
+  ai:
+    zhipuai:
+      api-key: your_zhipuai_api_key_here
+```
+
+或者设置环境变量：
+```bash
+export zhipuai_api_key=your_zhipuai_api_key_here
+```
+
+### 3. 构建项目
 
 ```bash
 mvn clean compile
 ```
 
-### 3. 运行应用
+### 4. 运行应用
 
 ```bash
 mvn spring-boot:run
@@ -46,7 +63,7 @@ mvn spring-boot:run
 
 应用将在 `http://localhost:8080` 启动。
 
-### 4. 测试 API
+### 5. 测试 API
 
 访问测试接口：
 ```bash
@@ -61,13 +78,8 @@ curl http://localhost:8080/api/hello
 spring-ai-sample/
 ├── src/main/java/com/cnblogs/yjmyzz/
 │   ├── SpringAiApplication.java          # 主启动类
-│   ├── controller/
-│   │   └── WebController.java           # Web API 控制器
-│   └── mcp/
-│       ├── server/
-│       │   └── OrderService.java        # MCP 服务端工具实现
-│       └── client/
-│           └── McpClientSample.java     # MCP 客户端示例
+│   └── controller/
+│       └── WebController.java           # Web API 控制器
 ├── src/main/resources/
 │   └── application.yaml                 # 应用配置文件
 ├── pom.xml                              # Maven 配置文件
@@ -76,68 +88,37 @@ spring-ai-sample/
 
 ## 🔧 核心功能
 
-### 1. MCP 服务端工具
+### 1. 图像生成 API
 
-`OrderService` 类实现了一个自定义的 MCP 工具：
+项目提供了三个主要的图像生成接口：
 
-```java
-@Tool(name = "queryOrderStatus",
-      description = "根据订单号查询订单状态")
-public String queryOrderStatus(@ToolParam(required = true, description = "订单号,格式为8位数字,比如：25070601") String orderNo) {
-    return switch (orderNo) {
-        case "25070601" -> "订单号：" + orderNo + "，订单状态：已发货";
-        case "25070602" -> "订单号：" + orderNo + "，订单状态：已完成";
-        case "25070603" -> "订单号：" + orderNo + "，订单状态：已取消";
-        default -> "订单号：" + orderNo + "，订单状态：未知";
-    };
-}
+#### 获取图片 URL
+```http
+GET /api/image/url?prompt=一只可爱的小猫
 ```
 
-**支持的订单号：**
-- `25070601` - 订单状态：已发货
-- `25070602` - 订单状态：已完成  
-- `25070603` - 订单状态：已取消
-- 其他订单号 - 订单状态：未知
+返回智谱 AI 生成的图片 URL，格式为 JSON 字符串。
 
-### 2. MCP 客户端示例
-
-`McpClientSample` 类演示了如何：
-- 连接到 MCP 服务器
-- 列出可用工具
-- 调用工具并获取结果
-
-示例代码：
-```java
-@Test
-public void testMcpClientSample() {
-    ServerParameters stdioParams = ServerParameters.builder("java")
-            .args("-jar", "target/spring-ai-0.0.1-SNAPSHOT.jar")
-            .build();
-    
-    StdioClientTransport stdioTransport = new StdioClientTransport(stdioParams);
-    McpSyncClient mcpClient = McpClient.sync(stdioTransport).build();
-    
-    mcpClient.initialize();
-    
-    // 列出可用工具
-    McpSchema.ListToolsResult toolsList = mcpClient.listTools();
-    System.out.println(toolsList);
-    
-    // 调用订单查询工具
-    McpSchema.CallToolResult result = mcpClient.callTool(
-            new McpSchema.CallToolRequest("queryOrderStatus",
-                    Map.of("orderNo", "25070601")));
-    System.out.println(result);
-    
-    mcpClient.closeGracefully();
-}
+#### 在浏览器中显示图片
+```http
+GET /api/image/display?prompt=一只可爱的小猫
 ```
 
-### 3. Web API
+直接在浏览器中显示生成的图片，适合在网页中嵌入。
 
-提供简单的 REST API 接口用于测试应用状态：
+#### 应用状态检查
+```http
+GET /api/hello
+```
 
-- `GET /api/hello` - 返回问候信息
+返回应用状态信息。
+
+### 2. 图像生成配置
+
+默认的图像生成参数：
+- **尺寸**: 256x256 像素
+- **格式**: PNG
+- **模型**: 智谱 AI 图像生成模型
 
 ## ⚙️ 配置说明
 
@@ -148,14 +129,13 @@ server:
   port: 8080                    # 服务端口
 
 spring:
-  main:
-    banner-mode: off            # 关闭启动横幅
+  ai:
+    zhipuai:
+      api-key: ${zhipuai_api_key}  # 智谱 AI API Key
 
 logging:
-  pattern:
-    console:                    # 控制台日志格式
   level:
-    root: TRACE                # 日志级别
+    root: DEBUG                # 日志级别
   file:
     name: logs/mcp_demo.log    # 日志文件路径
 ```
@@ -163,50 +143,79 @@ logging:
 ### Maven 依赖
 
 主要依赖包括：
-- `spring-ai-starter-mcp-server` - Spring AI MCP 服务器启动器
+- `spring-ai-starter-model-zhipuai` - Spring AI 智谱 AI 启动器
 - `spring-boot-starter-web` - Spring Boot Web 启动器
 - `spring-boot-starter-test` - 测试依赖
 
-## 🧪 运行测试
+## 🧪 使用示例
 
-### 运行 MCP 客户端测试
+### 使用 curl 测试
 
+1. **获取图片 URL**：
 ```bash
-mvn test -Dtest=McpClientSample#testMcpClientSample
+curl "http://localhost:8080/api/image/url?prompt=一只可爱的小猫"
 ```
 
-### 构建 JAR 包
-
+2. **在浏览器中查看图片**：
 ```bash
-mvn clean package
+curl "http://localhost:8080/api/image/display?prompt=一只可爱的小猫" --output image.png
 ```
 
-生成的 JAR 文件位于 `target/spring-ai-0.0.1-SNAPSHOT.jar`
+3. **直接在浏览器中打开**：
+在浏览器中访问：
+```
+http://localhost:8080/api/image/display?prompt=一只可爱的小猫
+```
+
+### 使用 JavaScript 调用
+
+```javascript
+// 获取图片 URL
+fetch('/api/image/url?prompt=一只可爱的小猫')
+  .then(response => response.text())
+  .then(url => {
+    console.log('图片 URL:', url);
+    // 在页面中显示图片
+    document.getElementById('image').src = url;
+  });
+
+// 直接显示图片
+document.getElementById('image').src = '/api/image/display?prompt=一只可爱的小猫';
+```
 
 ## 📝 开发说明
 
-### 添加新的 MCP 工具
+### 扩展图像生成功能
 
-1. 在 `mcp.server` 包下创建新的服务类
-2. 使用 `@Tool` 注解标记工具方法
-3. 使用 `@ToolParam` 注解定义参数
-4. 在 `SpringAiApplication` 中注册工具
+在 `WebController` 中可以轻松扩展更多功能：
 
-示例：
+1. **添加更多图像尺寸选项**：
 ```java
-@Service
-public class MyService {
-    @Tool(name = "myTool", description = "工具描述")
-    public String myTool(@ToolParam(required = true, description = "参数描述") String param) {
-        // 工具实现逻辑
-        return "结果";
-    }
+@GetMapping("/image/custom")
+public ResponseEntity<ByteArrayResource> generateCustomImage(
+    @RequestParam String prompt,
+    @RequestParam(defaultValue = "256") int width,
+    @RequestParam(defaultValue = "256") int height) {
+    // 实现自定义尺寸的图像生成
 }
 ```
 
-### 扩展 Web API
+2. **添加图像格式选择**：
+```java
+@GetMapping("/image/format")
+public ResponseEntity<ByteArrayResource> generateImageWithFormat(
+    @RequestParam String prompt,
+    @RequestParam(defaultValue = "PNG") String format) {
+    // 实现不同格式的图像生成
+}
+```
 
-在 `controller` 包下添加新的控制器类或扩展现有的 `WebController`。
+### 错误处理
+
+项目包含基本的错误处理：
+- 网络连接错误
+- API 调用失败
+- 参数验证错误
 
 ## 🔍 日志查看
 
@@ -233,7 +242,13 @@ public class MyService {
 ## 🙏 致谢
 
 - [Spring AI](https://spring.io/projects/spring-ai) - Spring 官方 AI 框架
-- [MCP](https://modelcontextprotocol.io/) - Model Context Protocol 规范
+- [智谱 AI](https://open.bigmodel.cn/) - 智谱 AI 开放平台
+
+## ⚠️ 注意事项
+
+1. **API Key 安全**: 请妥善保管您的智谱 AI API Key，不要将其提交到版本控制系统
+2. **使用限制**: 请遵守智谱 AI 的使用条款和限制
+3. **网络连接**: 确保应用能够访问智谱 AI 的 API 服务
 
 ---
 

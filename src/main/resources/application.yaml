@@ -4,7 +4,7 @@ server:
 spring:
   ai:
     zhipuai:
-      api-key: bced7fba0e3f4bc19048382c33caf285.zVwm8zFg07AuJnrV
+      api-key: ${zhipuai_api_key}
 
 logging:
   level:

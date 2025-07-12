@@ -1,22 +1,26 @@
 package com.cnblogs.yjmyzz;
 
-import com.cnblogs.yjmyzz.mcp.server.OrderService;
-import org.springframework.ai.tool.ToolCallbackProvider;
-import org.springframework.ai.tool.method.MethodToolCallbackProvider;
+import org.springframework.ai.zhipuai.ZhiPuAiImageModel;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class SpringAiApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringAiApplication.class, args);
+
+        ConfigurableApplicationContext run = SpringApplication.run(SpringAiApplication.class, args);
+//        String[] beanDefinitionNames = run.getBeanDefinitionNames();
+//        for (String beanDefinitionName : beanDefinitionNames) {
+//            System.out.println("Bean: " + beanDefinitionName);
+//        }
+
+
     }
 
-    @Bean
-    public ToolCallbackProvider weatherTools(OrderService orderService) {
-        return  MethodToolCallbackProvider.builder().toolObjects(orderService).build();
-    }
+
+
 
 }

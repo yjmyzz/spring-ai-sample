@@ -1,6 +1,3 @@
-server:
-  port: 8080
-
 spring:
   ai:
     mcp:
@@ -9,6 +6,6 @@ spring:
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
   file:
     name: logs/mcp_demo.log

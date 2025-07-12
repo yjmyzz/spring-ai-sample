@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.Base64;
 
 @RestController
 @RequestMapping("/api")
@@ -32,45 +31,45 @@ public class WebController {
         return "Hello, Spring AI!";
     }
 
-    @GetMapping("/image/url")
-    public String genImageUrl(@RequestParam String prompt) {
+@GetMapping("/image/url")
+public String genImageUrl(@RequestParam String prompt) {
+    var options = ImageOptionsBuilder.builder().height(256).width(256).build();
+    ImageResponse response = zhiPuAiImageModel.call(
+            new ImagePrompt(prompt,
+                    options));
+    Image output = response.getResult().getOutput();
+    return output.getUrl();
+}
+
+@GetMapping("/image/display")
+public ResponseEntity<ByteArrayResource> displayImage(@RequestParam String prompt) {
+    try {
         var options = ImageOptionsBuilder.builder().height(256).width(256).build();
         ImageResponse response = zhiPuAiImageModel.call(
-                new ImagePrompt(prompt,
-                        options));
+                new ImagePrompt(prompt, options));
         Image output = response.getResult().getOutput();
-        return output.getUrl();
-    }
 
-    @GetMapping("/image/display")
-    public ResponseEntity<ByteArrayResource> displayImage(@RequestParam String prompt) {
-        try {
-            var options = ImageOptionsBuilder.builder().height(256).width(256).build();
-            ImageResponse response = zhiPuAiImageModel.call(
-                    new ImagePrompt(prompt, options));
-            Image output = response.getResult().getOutput();
-            
-            // 获取图片URL
-            String imageUrl = output.getUrl();
-            
-            // 下载图片数据
-            URL url = URI.create(imageUrl).toURL();
-            byte[] imageData = url.openStream().readAllBytes();
-            
-            // 创建ByteArrayResource
-            ByteArrayResource resource = new ByteArrayResource(imageData);
-            
-            // 设置响应头 - 直接在浏览器中显示
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.IMAGE_PNG);
-            
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(resource);
-                    
-        } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
-        }
+        // 获取图片URL
+        String imageUrl = output.getUrl();
+
+        // 下载图片数据
+        URL url = URI.create(imageUrl).toURL();
+        byte[] imageData = url.openStream().readAllBytes();
+
+        // 创建ByteArrayResource
+        ByteArrayResource resource = new ByteArrayResource(imageData);
+
+        // 设置响应头 - 直接在浏览器中显示
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(resource);
+
+    } catch (IOException e) {
+        return ResponseEntity.internalServerError().build();
     }
+}
 
 }

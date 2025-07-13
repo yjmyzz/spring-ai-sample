@@ -2,7 +2,16 @@ spring:
   ai:
     mcp:
       server:
-        type: async
+        name: webmvc-mcp-server
+        version: 1.0.0
+        type: SYNC
+        instructions: "This server provides order status query tools"
+        sse-message-endpoint: /mcp/messages
+        capabilities:
+          tool: true
+          resource: true
+          prompt: true
+          completion: true
 
 logging:
   level:

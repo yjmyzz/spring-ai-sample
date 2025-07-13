@@ -2,9 +2,8 @@ package com.cnblogs.yjmyzz.mcp.client;
 
 import io.modelcontextprotocol.client.McpClient;
 import io.modelcontextprotocol.client.McpSyncClient;
-import io.modelcontextprotocol.client.transport.WebFluxSseClientTransport;
+import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
 import io.modelcontextprotocol.spec.McpSchema;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
 
@@ -14,7 +13,10 @@ import java.util.Map;
 public class McpClientSample {
 
     public static void main(String[] args) {
-        WebFluxSseClientTransport webFluxSseTransport = new WebFluxSseClientTransport(WebClient.builder().baseUrl("http://localhost:8080"));
+        //注：目前spring-ai的源码，并非提供设置http请求头的方式，下面的代码，无法设置Authorization请求头，请求将超时失败
+        HttpClientSseClientTransport webFluxSseTransport = HttpClientSseClientTransport
+                .builder("http://localhost:8080")
+                .build();
 
         McpSyncClient mcpClient = McpClient.sync(webFluxSseTransport).build();
 
@@ -35,6 +37,5 @@ public class McpClientSample {
 
         mcpClient.closeGracefully();
     }
-
 
 }

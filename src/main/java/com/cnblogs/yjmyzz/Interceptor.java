@@ -20,6 +20,7 @@ public class Interceptor implements HandlerInterceptor {
         if ("123456".equals(token) || "234567".equals(token)) {
             return true;
         }
+       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         return false;
     }
 }

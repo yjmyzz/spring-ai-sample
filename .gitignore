@@ -26,3 +26,4 @@ replay_pid*
 /.vscode/
 /logs/
 /target/
+/src/main/resources/.env

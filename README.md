@@ -1,6 +1,6 @@
 # Spring AI 示例项目
 
-这是一个基于 Spring AI 框架的示例项目，集成了 Ollama 本地大语言模型，提供了聊天对话功能。
+这是一个基于 Spring AI 框架的示例项目，集成了 Ollama 本地大语言模型，提供了聊天对话功能，支持多轮对话记忆。
 
 ## 🚀 项目特性
 
@@ -8,6 +8,7 @@
 - **Ollama 支持**: 集成 Ollama 本地大语言模型服务
 - **RESTful API**: 提供聊天对话的 REST API 接口
 - **流式响应**: 支持流式聊天响应
+- **多轮对话记忆**: 支持基于 conversationId 的多轮对话上下文记忆
 - **自定义 Advisor**: 实现了请求响应拦截器，用于日志输出
 - **中文 AI 助手**: 配置了中文 AI 助手"阿呆"
 
@@ -90,7 +91,7 @@ GET /api/hello
 "Hello, Spring AI!"
 ```
 
-### 2. 聊天对话
+### 2. 单轮聊天对话
 
 ```http
 GET /api/chat?prompt=你好，请介绍一下自己
@@ -115,6 +116,67 @@ GET /api/chat-stream?prompt=请写一首关于春天的诗
 
 **响应:** 返回流式文本响应，实时显示 AI 回复内容
 
+### 4. 多轮对话记忆
+
+```http
+GET /api/conversation?conversationId=sid1&prompt=我的名字是张三
+```
+
+**参数:**
+- `conversationId` (必需): 会话标识符，用于维护对话上下文
+- `prompt` (必需): 用户输入的对话内容
+
+**特点:**
+- 支持多轮对话记忆，AI 能记住之前的对话内容
+- 同一 conversationId 的对话会保持上下文连续性
+- 不同 conversationId 的对话相互独立
+
+**使用示例:**
+```bash
+# 第一轮对话
+curl "http://localhost:8080/api/conversation?conversationId=sid1&prompt=我的名字是张三"
+
+# 第二轮对话（AI 会记住你的名字）
+curl "http://localhost:8080/api/conversation?conversationId=sid1&prompt=你还记得我的名字吗？"
+
+# 第三轮对话（AI 会记住整个对话历史）
+curl "http://localhost:8080/api/conversation?conversationId=sid1&prompt=我们之前聊了什么？"
+```
+
+### 5. 流式多轮对话
+
+```http
+GET /api/conversation-stream?conversationId=sid1&prompt=请写一个故事
+```
+
+**参数:**
+- `conversationId` (必需): 会话标识符
+- `prompt` (必需): 用户输入的对话内容
+
+**响应:** 返回流式文本响应，支持多轮对话记忆
+
+### 6. 查询对话历史
+
+```http
+GET /api/history?conversationId=sid1
+```
+
+**参数:**
+- `conversationId` (必需): 会话标识符
+
+**响应:** 返回指定会话的历史消息列表
+
+### 7. 清除对话历史
+
+```http
+DELETE /api/history?conversationId=sid1
+```
+
+**参数:**
+- `conversationId` (必需): 会话标识符
+
+**响应:** 清除指定会话的所有历史记录
+
 ## 🏗️ 项目结构
 
 ```
@@ -125,8 +187,10 @@ spring-ai-sample/
 │   │   └── WebController.java           # REST API 控制器
 │   ├── config/
 │   │   └── CommonConfiguration.java     # 应用配置
-│   └── advisor/
-│       └── ConsoleOutputAdvisor.java    # 请求响应拦截器
+│   ├── advisor/
+│   │   └── ConsoleOutputAdvisor.java    # 请求响应拦截器
+│   └── consts/
+│       └── AppConstant.java             # 应用常量定义
 ├── src/main/resources/
 │   └── application.yaml                 # 应用配置文件
 └── pom.xml                             # Maven 配置文件
@@ -151,11 +215,23 @@ spring-ai-sample/
 
 ### WebController
 
-提供了三个主要的 API 端点：
+提供了多个 API 端点：
 
 - `/api/hello`: 简单的健康检查
-- `/api/chat`: 普通聊天对话
+- `/api/chat`: 单轮聊天对话
 - `/api/chat-stream`: 流式聊天对话
+- `/api/conversation`: 多轮对话记忆
+- `/api/conversation-stream`: 流式多轮对话
+- `/api/history`: 查询对话历史
+- `/api/history` (DELETE): 清除对话历史
+
+### 多轮对话记忆实现
+
+项目使用 Spring AI 的 ChatMemory 功能实现多轮对话：
+
+- **InMemoryChatMemoryRepository**: 内存存储对话历史
+- **MessageWindowChatMemory**: 消息窗口管理，限制历史消息数量
+- **conversationId**: 会话标识符，用于区分不同对话
 
 ## 🚀 开发指南
 
@@ -179,6 +255,14 @@ public class CustomAdvisor implements RequestResponseAdvisor {
 
 在 `WebController` 中添加新的端点，或创建新的控制器类。
 
+### 配置对话记忆参数
+
+在 `AppConstant.java` 中可以调整：
+
+```java
+public static final int MAX_HISTORY_SESSION = 20; // 最大历史消息数量
+```
+
 ## 🐛 故障排除
 
 ### 常见问题
@@ -195,6 +279,11 @@ public class CustomAdvisor implements RequestResponseAdvisor {
 3. **Java 版本问题**
    - 确保使用 Java 21 或更高版本
    - 检查 `JAVA_HOME` 环境变量设置
+
+4. **多轮对话记忆失效**
+   - 确保每次请求使用相同的 conversationId
+   - 检查 MAX_HISTORY_SESSION 设置是否合理
+   - 验证 ChatMemory 配置是否正确
 
 ## 📄 许可证
 

@@ -1,19 +1,36 @@
 package com.cnblogs.yjmyzz.controller;
 
 
+import com.cnblogs.yjmyzz.advisor.ConsoleOutputAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+
+import java.util.List;
+
+import static com.cnblogs.yjmyzz.consts.AppConstant.MAX_HISTORY_SESSION;
 
 @RestController
 @RequestMapping("/api")
 public class WebController {
 
+
     @Autowired
     ChatClient chatClient;
+
+    @Autowired
+    ChatMemory chatMemory;
+
+//    @Autowired
+//    ChatModel chatModel;
+
 
     @GetMapping("/hello")
     public String sayHello() {
@@ -28,7 +45,7 @@ public class WebController {
                 .content();
     }
 
-    @RequestMapping(value = "/chat-stream",produces = "text/html;charset=utf-8")
+    @RequestMapping(value = "/chat-stream", produces = "text/html;charset=utf-8")
     public Flux<String> chatStream(String prompt) {
         return chatClient.prompt()
                 .user(prompt)
@@ -36,4 +53,39 @@ public class WebController {
                 .content();
     }
 
+    @GetMapping("/history")
+    public List<Message> history(String conversationId) {
+        return chatMemory.get(conversationId, MAX_HISTORY_SESSION);
+    }
+
+    @DeleteMapping("/history")
+    public String delHistory(String conversationId) {
+        chatMemory.clear(conversationId);
+        return "清除成功";
+    }
+
+    @RequestMapping("/conversation")
+    public String conversation(@RequestParam String conversationId, @RequestParam String prompt) {
+        // 1. 存储用户消息
+        chatMemory.add(conversationId, new UserMessage(prompt));
+        // 2. 获取历史消息
+        List<Message> history = chatMemory.get(conversationId, MAX_HISTORY_SESSION);
+        // 3. 调用大模型
+        return chatClient.prompt(new Prompt(history))
+                .call()
+                .content();
+
+    }
+
+    @RequestMapping(value = "/conversation-stream", produces = "text/html;charset=utf-8")
+    public Flux<String> conversationStream(@RequestParam String conversationId, @RequestParam String prompt) {
+        // 1. 存储用户消息
+        chatMemory.add(conversationId, new UserMessage(prompt));
+        // 2. 获取历史消息
+        List<Message> history = chatMemory.get(conversationId, MAX_HISTORY_SESSION);
+        // 3. 调用大模型
+        return chatClient.prompt(new Prompt(history))
+                .stream()
+                .content();
+    }
 }

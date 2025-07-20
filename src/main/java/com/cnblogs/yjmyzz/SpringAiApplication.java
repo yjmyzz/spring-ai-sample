@@ -17,16 +17,5 @@ public class SpringAiApplication {
         SpringApplication.run(SpringAiApplication.class, args);
     }
 
-    @Bean
-    public CommandLineRunner run(ChatClient chatClient) {
-        return args -> {
 
-            String content = chatClient.prompt()
-                    .user("你叫什么名字，请用英文回答")
-                    .call()
-                    .content();
-
-            System.out.printf("%s%n", content);
-        };
-    }
 }

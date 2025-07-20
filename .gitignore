@@ -28,3 +28,4 @@ replay_pid*
 /target/
 /src/main/resources/.env
 /.idea/
+/.idea/

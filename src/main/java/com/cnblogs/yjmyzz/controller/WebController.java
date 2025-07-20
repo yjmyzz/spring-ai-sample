@@ -28,10 +28,6 @@ public class WebController {
     @Autowired
     ChatMemory chatMemory;
 
-//    @Autowired
-//    ChatModel chatModel;
-
-
     @GetMapping("/hello")
     public String sayHello() {
         return "Hello, Spring AI!";
@@ -79,11 +75,11 @@ public class WebController {
 
     @RequestMapping(value = "/conversation-stream", produces = "text/html;charset=utf-8")
     public Flux<String> conversationStream(@RequestParam String conversationId, @RequestParam String prompt) {
-        // 1. 存储用户消息
+        // 1. 当前新问题，扔到聊天上下文中
         chatMemory.add(conversationId, new UserMessage(prompt));
-        // 2. 获取历史消息
+        // 2. 把历史消息全都取出来
         List<Message> history = chatMemory.get(conversationId, MAX_HISTORY_SESSION);
-        // 3. 调用大模型
+        // 3. 所有历史消息，扔给大模型
         return chatClient.prompt(new Prompt(history))
                 .stream()
                 .content();

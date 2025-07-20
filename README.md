@@ -293,12 +293,14 @@ public static final int MAX_HISTORY_SESSION = 20; // 最大历史消息数量
 
 欢迎提交 Issue 和 Pull Request 来改进这个项目！
 
-## 📞 联系方式
+## 👨‍💻 作者
 
-如有问题或建议，请通过以下方式联系：
+- **菩提树下的杨过** - [博客园主页](https://www.cnblogs.com/yjmyzz/p/18993731/spring-ai-study-chat-memory)
 
-- 项目 Issues: [GitHub Issues](https://github.com/your-repo/issues)
-- 邮箱: your-email@example.com
+## 🙏 致谢
+
+- [Spring AI](https://spring.io/projects/spring-ai)
+- [ollama](https://www.ollama.com/)
 
 ---
 

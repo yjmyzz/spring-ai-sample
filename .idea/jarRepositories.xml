@@ -9,6 +9,21 @@
     <remote-repository>
       <option name="id" value="spring-milestones" />
       <option name="name" value="Spring Milestones" />
+      <option name="url" value="http://artifactory.release.ctripcorp.com/artifactory/trip-maven-prod" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="central-portal-snapshots" />
+      <option name="name" value="Central Portal Snapshots" />
+      <option name="url" value="http://artifactory.release.ctripcorp.com/artifactory/trip-maven-prod" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="spring-snapshots" />
+      <option name="name" value="Spring Snapshots" />
+      <option name="url" value="http://artifactory.release.ctripcorp.com/artifactory/trip-maven-prod" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="spring-milestones" />
+      <option name="name" value="Spring Milestones" />
       <option name="url" value="https://repo.spring.io/milestone" />
     </remote-repository>
     <remote-repository>
@@ -29,12 +44,12 @@
     <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
-      <option name="url" value="https://maven.aliyun.com/repository/public" />
+      <option name="url" value="http://artifactory.release.ctripcorp.com/artifactory/trip-maven-prod" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
-      <option name="url" value="http://artifactory.release.ctripcorp.com/artifactory/trip-maven-prod" />
+      <option name="url" value="https://maven.aliyun.com/repository/public" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="trip-maven-prod" />

@@ -27,5 +27,3 @@ replay_pid*
 /logs/
 /target/
 /src/main/resources/.env
-/.idea/
-/.idea/
